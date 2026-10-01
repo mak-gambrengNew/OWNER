@@ -121,95 +121,46 @@ svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #v>*{animation:fd .24s ease-out}
 @keyframes fd{from{opacity:0}}
 
-/* ===== Login v6 — layout audit: modern native / fixed viewport ===== */
-html,body{overflow:hidden}
+/* ===== LOGIN — TOTAL REFACTOR, LOGIN ONLY ===== */
 .lg{
-  position:absolute;inset:0;width:100%;height:100dvh;min-height:100%;overflow:hidden;
-  display:grid;grid-template-rows:minmax(0,1fr) auto;color:#17352F;isolation:isolate;
-  background:
-    radial-gradient(110% 58% at 50% -8%,#C9F8E3 0%,#ECFFF6 45%,transparent 76%),
-    linear-gradient(160deg,#FBFFFD 0%,#EFFBF5 52%,#E2F4EB 100%);
+ position:absolute;inset:0;width:100%;height:100dvh;overflow:auto;display:flex;flex-direction:column;
+ color:#173d35;background:linear-gradient(180deg,#f5faf7 0%,#eaf5f0 52%,#f7faf8 100%);isolation:isolate;
 }
-.lg::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;background:
-  radial-gradient(300px 210px at 100% 0%,#F6D45A30 0%,transparent 72%),
-  radial-gradient(300px 230px at 0% 82%,#20B48612 0%,transparent 74%)}
-.lg::after{content:"";position:absolute;z-index:-1;right:-120px;top:42px;width:270px;height:270px;border:1px solid #159B7415;border-radius:50%;box-shadow:0 0 0 34px #159B7407,0 0 0 72px #159B7404;pointer-events:none}
-.lg-hero{
-  min-height:0;display:flex;align-items:center;justify-content:center;
-  padding:calc(var(--sat) + 18px) max(22px,env(safe-area-inset-left,22px)) 14px;
-  text-align:center;position:relative;animation:loginFade .45s ease-out
-}
-.lg-brand{width:min(100%,360px);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:loginBrand .55s cubic-bezier(.2,.9,.3,1)}
-.lg .logo{width:clamp(92px,24vw,112px);height:clamp(92px,24vw,112px);border-radius:0;background:transparent;display:grid;place-items:center;overflow:visible;box-shadow:none;margin:0 0 clamp(9px,1.9vh,15px)}
-.lg .logo img{width:100%;height:100%;display:block;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 10px 18px #0D5F4930)}
-.lg-kicker{display:inline-flex;align-items:center;gap:7px;min-height:25px;padding:0 11px;border:1px solid #149A731C;border-radius:99px;background:#FFFFFFB8;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#0E705B;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:850;margin-bottom:clamp(7px,1.3vh,10px);box-shadow:0 5px 16px #0C775012}
-.lg-kicker i{width:6px;height:6px;border-radius:50%;background:#E9B92F;box-shadow:0 0 0 4px #E9B92F20}
-.lg-hero h1{font-size:clamp(24px,6.7vw,30px);line-height:1.06;letter-spacing:-.75px;margin:0 0 6px;font-weight:850;color:#123B33}
-.lg-hero p{margin:0;font-size:13px;line-height:1.4;color:#547169;max-width:320px}
-.lg-hero p strong{color:#24584D;font-weight:800}
-.lg-card{
-  min-height:0;position:relative;background:#FFFFFFF4;color:#17352F;
-  border:1px solid #FFFFFF;border-bottom:0;border-radius:26px 26px 0 0;
-  padding:15px max(20px,env(safe-area-inset-left,20px)) calc(var(--sab) + 12px);
-  box-shadow:0 -12px 35px #167A5818;animation:loginUp .5s cubic-bezier(.2,.9,.3,1)
-}
-.lg-card.focus{box-shadow:0 -12px 35px #167A5818,0 -2px 0 #159B7410}
-.lg-card::before{content:"";display:block;width:36px;height:4px;border-radius:99px;background:#CFE7DC;margin:-7px auto 13px}
-.lg-heading{margin:0 0 11px}
-.lg-heading strong{display:block;font-size:17px;letter-spacing:-.2px;color:#183C35}
-.lg-heading span{display:block;margin-top:3px;color:#718780;font-size:11.5px;line-height:1.3}
-.lg-f{position:relative}
-.lg-f input{width:100%;height:54px;border:1.5px solid #D8E8E0;border-radius:14px;padding:20px 50px 4px 45px;font-size:16px;font-weight:650;background:#F6FAF8;color:#17352F;user-select:text;transition:border-color .16s,box-shadow .16s,background .16s}
-.lg-f input::placeholder{color:transparent}
-.lg-f input:focus{outline:0;border-color:#159B74;background:#fff;box-shadow:0 0 0 4px #159B7417}
-.lg-f label{position:absolute;left:45px;top:17px;font-size:14px;color:#7B918A;pointer-events:none;transition:all .14s ease}
-.lg-f input:focus+label,.lg-f input:not(:placeholder-shown)+label{top:6px;font-size:10.5px;font-weight:850;letter-spacing:.02em;color:#0B8061}
-.lg-f.bad input{border-color:#D94A50;box-shadow:0 0 0 4px #D94A5010;background:#FFF9F9}
-.lg-f.bad label{color:#D94A50}
-.lg-f .lead{position:absolute;left:14px;top:17px;color:#66827A;display:grid;z-index:1}
-.lg-f .lead svg.i{width:19px;height:19px}
-.lg-f .eye{position:absolute;right:4px;top:5px;width:43px;height:43px;display:grid;place-items:center;color:#66827A;border-radius:11px}
-.lg-f .eye:active{background:#EAF5EF}
-.lg-err{min-height:17px;margin:4px 3px 5px;font-size:11.5px;font-weight:650;color:#D94A50}
-.lg-btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:14px!important;background:linear-gradient(135deg,#20B889,#0D8567);box-shadow:0 8px 18px #0D85672E;transition:transform .15s,box-shadow .2s,background .2s}
-.lg-btn:not(:disabled):hover{box-shadow:0 10px 22px #0D85673A}
-.lg-btn:disabled{background:#E5EFEA;color:#91A49E;box-shadow:none}
-.lg-btn.load:disabled{background:linear-gradient(135deg,#20B889,#0D8567);color:#fff}
-.lg-btn.ok{background:linear-gradient(135deg,#20B889,#087052);box-shadow:0 8px 18px #08705232}
-.lg-btn svg.i{width:23px;height:23px;stroke-width:2.7}
-.sp{width:20px;height:20px;border-radius:50%;border:2.5px solid #FFFFFF55;border-top-color:#fff;animation:rot .7s linear infinite}
-.lg-security{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0 0;color:#718780;font-size:10px}
-.lg-security svg.i{width:13px;height:13px;color:#159B74}
-.lg-note{margin:4px 0 0;text-align:center;font-size:9.5px;color:#9AA9A4}
-@keyframes loginFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes loginBrand{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-@keyframes loginUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-@media(min-width:481px){.lg{max-width:480px;left:50%;right:auto;transform:translateX(-50%);box-shadow:0 0 0 1px #159B7414,0 28px 80px #174D3B28}}
-@media(max-height:680px){
-  .lg-hero{padding-top:calc(var(--sat) + 10px);padding-bottom:8px}
-  .lg .logo{width:82px;height:82px;margin-bottom:7px}
-  .lg-kicker{min-height:23px;margin-bottom:6px}
-  .lg-hero h1{font-size:23px;margin-bottom:4px}
-  .lg-hero p{font-size:11.5px;line-height:1.3}
-  .lg-card{padding-top:13px}
-  .lg-card::before{margin-bottom:11px}
-  .lg-heading{margin-bottom:8px}
-  .lg-heading strong{font-size:16px}
-  .lg-heading span{font-size:10.5px}
-  .lg-f input{height:50px}
-  .lg-f .lead{top:15px}.lg-f label{top:15px}.lg-f .eye{top:3px}
-  .lg-err{min-height:15px;margin:3px 3px 4px}
-  .lg-btn{height:49px}
-  .lg-security{margin-top:6px}.lg-note{margin-top:2px}
-}
-@media(max-height:580px){
-  .lg .logo{width:70px;height:70px;margin-bottom:5px}
-  .lg-kicker{display:none}
-  .lg-hero h1{font-size:21px}
-  .lg-hero p{display:none}
-  .lg-card{padding-top:10px}
-  .lg-card::before{margin-bottom:8px}
-}
+.lg::before{content:"";position:absolute;inset:0;z-index:-2;background:
+ radial-gradient(70% 35% at 50% 0%,#d8eee7 0%,transparent 72%),
+ radial-gradient(260px 220px at 100% 24%,#e8f2d9 0%,transparent 75%),
+ radial-gradient(260px 240px at 0% 62%,#e4f3ed 0%,transparent 75%)}
+.lg::after{content:"";position:absolute;z-index:-1;width:360px;height:360px;right:-230px;top:90px;border:1px solid #198a6c18;border-radius:50%;box-shadow:0 0 0 42px #198a6c08,0 0 0 88px #198a6c04;pointer-events:none}
+.lg-hero{flex:1 0 auto;display:flex;justify-content:center;align-items:center;text-align:center;padding:30px 22px 24px;min-height:360px}
+.lg-brand{width:min(100%,390px);display:flex;flex-direction:column;align-items:center}
+.lg .logo{width:136px;height:136px;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden;box-shadow:0 16px 42px #174d3b20;border:5px solid #fff;margin:0 0 18px}
+.lg .logo img{width:100%;height:100%;display:block;object-fit:cover}
+.lg-kicker{display:inline-flex;align-items:center;gap:8px;color:#19735d;font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px}
+.lg-kicker i{width:7px;height:7px;border-radius:50%;background:#d8a927;box-shadow:0 0 0 5px #d8a92718}
+.lg-hero h1{margin:0;font-size:clamp(30px,8vw,40px);line-height:1.02;letter-spacing:-1.7px;font-weight:900;color:#123f37}
+.lg-hero p{margin:11px auto 0;max-width:330px;font-size:14px;line-height:1.5;color:#708b84}
+.lg-hero p strong{color:#1c584b;font-weight:850}
+.lg-card{flex:0 0 auto;background:#fff;border:1px solid #e1ece8;border-bottom:0;border-radius:32px 32px 0 0;padding:18px max(20px,env(safe-area-inset-left,20px)) calc(env(safe-area-inset-bottom,0px) + 24px);box-shadow:0 -16px 50px #245d4b12;color:#173d35}
+.lg-card::before{content:"";display:block;width:48px;height:5px;border-radius:99px;background:#cfe5de;margin:-2px auto 24px}
+.lg-heading{margin:0 0 18px}.lg-heading strong{display:block;font-size:24px;line-height:1.15;letter-spacing:-.6px;color:#173f38}.lg-heading span{display:block;margin-top:7px;font-size:14px;line-height:1.45;color:#78918c}
+.lg-f{position:relative;display:flex;align-items:center;min-height:70px;border:1.5px solid #d5e4df;border-radius:19px;background:#fbfdfc;transition:.18s ease}
+.lg-f:focus-within{border-color:#0c8f70;background:#fff;box-shadow:0 0 0 4px #0c8f7014}
+.lg-f input{width:100%;height:68px;border:0!important;border-radius:18px!important;padding:26px 56px 7px 50px!important;font-size:21px;font-weight:750;letter-spacing:3px;background:transparent!important;color:#173d35;outline:0!important;box-shadow:none!important;user-select:text}
+.lg-f input::placeholder{color:#a4b8b2;letter-spacing:0;font-weight:550}.lg-f input:focus::placeholder{color:transparent}
+.lg-f label{position:absolute;left:50px;top:15px;font-size:12px;font-weight:850;color:#16846a;pointer-events:none;line-height:1;transition:.14s ease}
+.lg-f .lead{position:absolute;left:16px;top:23px;color:#718b84;display:grid;z-index:2;pointer-events:none}.lg-f .lead svg.i{width:22px;height:22px;stroke-width:1.9}
+.lg-f .eye{position:absolute;right:5px;top:8px;width:53px;height:53px;display:grid;place-items:center;color:#6e8780;border-radius:15px;z-index:3}.lg-f .eye:active{background:#edf6f2}.lg-f .eye svg.i{width:26px;height:26px;stroke-width:1.8}
+.lg-f.bad{border-color:#c4515b;box-shadow:0 0 0 4px #c4515b12}.lg-f.bad label{color:#c4515b}
+.lg-err{min-height:0;margin:10px 3px 0;color:#c4515b;font-size:13px;font-weight:700;line-height:1.4}.lg-err:empty{display:none}
+.lg-btn{display:flex;align-items:center;justify-content:center;height:62px;margin-top:16px;border-radius:19px!important;background:linear-gradient(135deg,#109779,#08765f);box-shadow:0 13px 28px #08765f25;font-size:18px;font-weight:850;transition:.15s ease}.lg-btn:not(:disabled):active{transform:scale(.985)}
+.lg-btn:disabled{background:#e3eee9;color:#91a49e;box-shadow:none}.lg-btn.load:disabled{background:linear-gradient(135deg,#109779,#08765f);color:#fff}.lg-btn.ok{background:linear-gradient(135deg,#109779,#07644f);color:#fff}
+.lg-btn svg.i{width:23px;height:23px;stroke-width:2.7}.sp{width:20px;height:20px;border-radius:50%;border:2.5px solid #ffffff66;border-top-color:#fff;animation:rot .7s linear infinite}
+.lg-security{display:flex;align-items:center;justify-content:center;gap:7px;margin:18px 12px 0;color:#8aa19b;font-size:12px;text-align:center;line-height:1.4}.lg-security svg.i{width:17px;height:17px;color:#2aa184;flex:0 0 17px}.lg-note{margin:5px 0 0;text-align:center;font-size:11px;color:#a0aeaa}
+@keyframes loginFade2{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes loginBrand2{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}@keyframes loginUp2{from{transform:translateY(35px);opacity:0}to{transform:none;opacity:1}}
+.lg-hero{animation:loginFade2 .45s ease-out}.lg-brand{animation:loginBrand2 .5s cubic-bezier(.2,.9,.3,1)}.lg-card{animation:loginUp2 .5s cubic-bezier(.2,.9,.3,1)}
+@media(min-width:481px){.lg{max-width:480px;left:50%;right:auto;transform:translateX(-50%);box-shadow:0 0 0 1px #198a6c14,0 28px 80px #174d3b28}}
+@media(max-height:700px){.lg-hero{padding-top:20px;padding-bottom:15px;min-height:310px}.lg .logo{width:112px;height:112px;margin-bottom:12px}.lg-hero h1{font-size:31px}.lg-hero p{margin-top:7px;font-size:12.5px}.lg-card{padding-top:15px}.lg-card::before{margin-bottom:18px}.lg-heading{margin-bottom:13px}.lg-heading strong{font-size:21px}.lg-heading span{font-size:12px}.lg-f,.lg-f input{min-height:64px;height:64px}.lg-f input{height:62px!important}.lg-f .lead{top:20px}.lg-f label{top:14px}.lg-f .eye{top:5px}.lg-btn{height:56px;margin-top:12px}.lg-security{margin-top:12px}}
+@media(max-height:580px){.lg-hero{min-height:270px;padding-top:12px;padding-bottom:10px}.lg .logo{width:82px;height:82px;margin-bottom:8px}.lg-kicker{display:none}.lg-hero h1{font-size:26px}.lg-hero p{display:none}.lg-card{padding-top:11px}.lg-card::before{margin-bottom:12px}.lg-heading{margin-bottom:10px}.lg-heading strong{font-size:19px}.lg-heading span{font-size:11px}.lg-f,.lg-f input{min-height:58px;height:58px}.lg-f input{height:56px!important}.lg-f .lead{top:18px}.lg-f label{top:12px}.lg-f .eye{top:2px}.lg-btn{height:52px}.lg-security{margin-top:8px}}
 @media(prefers-reduced-motion:reduce){.lg-hero,.lg-card,.lg-brand{animation:none!important}}
 
 /* ===== ELITE UI SYSTEM v7 — Teh Solo / Ma-Gambreng ===== */
@@ -1168,6 +1119,23 @@ h1,h2,h3,.owner-identity strong,.lux-section-head h2{font-family:var(--font-disp
   min-width:0!important;
 }
 </style>
+<style>
+/* ===== OWNER LOGIN REFACTOR v2 ===== */
+.lg{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;justify-content:center;padding:28px 18px 26px;background:radial-gradient(80% 45% at 50% 0%,#dcefe8 0%,transparent 70%),linear-gradient(180deg,#f8fbf9 0%,#edf6f2 54%,#f8faf9 100%);color:#173f38}
+.lg:before,.lg:after{content:"";position:absolute;border-radius:999px;pointer-events:none}.lg:before{width:300px;height:300px;right:-185px;top:80px;background:#dcefe8aa}.lg:after{width:250px;height:250px;left:-180px;bottom:120px;background:#e4f1edaa}
+.lg-hero,.lg-card{position:relative;z-index:1;width:min(100%,470px);margin-left:auto;margin-right:auto}
+.lg-hero{text-align:center;margin-bottom:22px}.lg-brand .logo{width:118px;height:118px;margin:0 auto 15px;border-radius:50%;padding:4px;background:#fff;box-shadow:0 14px 34px #17483b22;overflow:hidden}.lg-brand .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
+.lg-kicker{display:inline-flex;align-items:center;gap:7px;color:#5d7771;font-size:12px;font-weight:800;letter-spacing:.3px}.lg-kicker i{width:7px;height:7px;border-radius:50%;background:#0c9878;box-shadow:0 0 0 4px #0c98781c}
+.lg-brand h1{margin:10px 0 5px;font-size:34px;line-height:1.04;letter-spacing:-1.5px;font-weight:850;color:#173f38}.lg-brand p{margin:0;color:#7b928d;font-size:14px;line-height:1.45}.lg-brand p strong{color:#496a63}
+.lg-card{background:#fffffff5;border:1px solid #dfeae6;border-radius:29px;padding:23px 20px 20px;box-shadow:0 20px 55px #214c4114;backdrop-filter:blur(10px)}
+.lg-card:before{content:"";display:block;width:48px;height:5px;border-radius:99px;background:#cde3dc;margin:0 auto 20px}
+.lg-heading strong{display:block;font-size:24px;line-height:1.15;letter-spacing:-.6px;color:#173f38}.lg-heading span{display:block;margin-top:8px;color:#78908b;font-size:14px;line-height:1.45}
+.lg-f{height:72px;margin-top:21px;display:flex;align-items:center;border:1.5px solid #d5e3df;background:#fbfdfc;border-radius:19px;transition:.18s ease}.lg-f:focus-within{border-color:#0c8f70;box-shadow:0 0 0 4px #0c8f7017;background:#fff}.lg-f.bad{border-color:#c4515b;box-shadow:0 0 0 4px #c4515b12}
+.lg-f .lead{width:49px;display:grid;place-items:center;color:#78908b;flex:0 0 49px}.lg-f .i{width:22px;height:22px}.lg-f input{order:2;min-width:0;flex:1;height:100%;border:0;outline:0;background:transparent;color:#173f38;font-size:21px;font-weight:750;letter-spacing:3px;padding:22px 0 3px}.lg-f input::placeholder{color:#9aafaa;letter-spacing:0;font-weight:550}.lg-f label{order:1;position:absolute;margin-left:49px;margin-top:-30px;color:#0b8b6e;font-size:11px;font-weight:850;pointer-events:none}.lg-f .eye{width:52px;height:52px;display:grid;place-items:center;color:#6f8782;border-radius:15px;flex:0 0 52px}.lg-f .eye .i{width:24px;height:24px}
+.lg-err{min-height:0;margin:9px 3px 0;color:#bd4e58;font-size:13px;font-weight:750;line-height:1.4}.lg-err:empty{display:none}.lg-btn{height:62px;margin-top:14px;border-radius:19px;background:linear-gradient(135deg,#0c9878,#08765f);font-size:18px;box-shadow:0 13px 27px #08765f2e}.lg-btn:disabled{opacity:.58}.lg-btn.load{cursor:wait}.lg-btn.ok{background:#168c6f}.lg-security{display:flex;justify-content:center;align-items:flex-start;gap:8px;margin:17px 12px 0;color:#8ba09c;font-size:11px;line-height:1.45;text-align:center}.lg-security .i{width:16px;height:16px;color:#2aa184;flex:0 0 16px}.lg-note{margin:8px 0 0;text-align:center;color:#a0aeab;font-size:10px}
+.lg .toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#173f38;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;z-index:20;transition:.2s}.lg .toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:380px){.lg{padding:20px 14px}.lg-brand .logo{width:104px;height:104px}.lg-brand h1{font-size:30px}.lg-card{padding:21px 16px 18px}.lg-heading strong{font-size:22px}}
+</style>
 </head>
 <body class="splash-active">
 <div id="app"></div>
@@ -1567,89 +1535,65 @@ const li=(ic,t,s,r)=>`<div class="li"><div class="ic">${ic}</div><div class="b">
 /* ===== Login ===== */
 function login(){
  const h=new Date().getHours(),g=h<11?'pagi':h<15?'siang':h<18?'sore':'malam';
- const ic=d=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
- const EYE=P[N('👁️')];
+ const ic=d=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+ const lock='M7 10V7.8a5 5 0 0 1 10 0V10M5 10h14v10H5z';
+ const eye='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z';
+ const OWNER_EMAIL='denxudua@gmail.com';
  app.innerHTML=`<main class="lg" aria-label="Akses Owner">
    <section class="lg-hero">
-     <div class="lg-brand">
-       <div class="logo" aria-hidden="true"><img src="${BRAND_LOGO}" alt=""></div>
-       <span class="lg-kicker"><i></i> Kode Akses Owner</span>
-       <h1>Selamat ${g}</h1>
-       <p>Masukkan kode akses untuk membuka pusat kendali <strong>Mak-Gambreng</strong>.</p>
-     </div>
+    <div class="lg-brand">
+      <div class="logo"><img src="${BRAND_LOGO}" alt="Teh Solo Mai-Cambreng"></div>
+      <span class="lg-kicker"><i></i> Panel Owner</span>
+      <h1>Selamat ${g}</h1>
+      <p>Pusat kendali operasional <strong>Mai-Cambreng</strong>.</p>
+    </div>
    </section>
    <section class="lg-card" aria-label="Masuk sebagai Owner">
-     <div class="lg-heading">
-       <strong>Masuk sebagai Owner</strong>
-       <span>Gunakan kode akses yang diberikan untuk akun Owner Anda.</span>
-     </div>
-     <div class="lg-f" id="f">
-       <span class="lead">${ic(P[N('🔒')])}</span>
-       <input id="c" type="password" placeholder=" " autocomplete="current-password" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Kode akses Owner" aria-describedby="er">
-       <label for="c">Kode akses</label>
-       <button type="button" class="eye" id="eye" aria-label="Tampilkan kode akses" aria-pressed="false">${ic(EYE)}</button>
-     </div>
-     <div class="lg-err" id="er" role="alert" aria-live="polite"></div>
-     <button class="btn lg-btn" id="go" disabled>Masuk ke Dashboard</button>
-     <div class="lg-security">${ic(P[N('🔒')])} Akses aman · akun diverifikasi oleh sistem</div>
-     <p class="lg-note">Akun Owner dikelola dari server.</p>
+    <div class="lg-heading"><strong>Masuk sebagai Owner</strong><span>Masukkan kode akses Owner untuk membuka dashboard.</span></div>
+    <div class="lg-f" id="f">
+      <span class="lead">${ic(lock)}</span>
+      <label for="c">Kode akses</label>
+      <input id="c" type="password" inputmode="numeric" placeholder="Masukkan kode akses" autocomplete="current-password" maxlength="64" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Kode akses Owner" aria-describedby="er">
+      <button type="button" class="eye" id="eye" aria-label="Tampilkan kode akses" aria-pressed="false">${ic(eye)}</button>
+    </div>
+    <div class="lg-err" id="er" role="alert" aria-live="polite"></div>
+    <button class="btn lg-btn" id="go" disabled>Masuk ke Dashboard</button>
+    <div class="lg-security">${ic(lock)}<span>Akses aman · akun Owner diverifikasi oleh Supabase Auth.</span></div>
+    <p class="lg-note">Akun Owner aktif terhubung ke sistem.</p>
    </section>
  </main><div class="toast"></div>`;
  const c=$('#c'),b=$('#go'),f=$('#f'),er=$('#er'),card=$('.lg-card');
  const validate=()=>{b.disabled=!c.value.trim()};
+ const fail=(msg)=>{er.textContent=msg;f.classList.add('bad');c.setAttribute('aria-invalid','true');card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');if(navigator.vibrate)navigator.vibrate(120)};
  c.oninput=()=>{er.textContent='';f.classList.remove('bad');c.removeAttribute('aria-invalid');validate()};
- c.onfocus=()=>{card.classList.add('focus');setTimeout(()=>card.classList.remove('focus'),180)};
- c.onkeydown=e=>e.key==='Enter'&&go();b.onclick=go;
- $('#eye').onclick=()=>{const t=c.type==='password';c.type=t?'text':'password';$('#eye').innerHTML=ic(t?EYE+'M4 4l16 16':EYE);$('#eye').setAttribute('aria-pressed',t)};
+ c.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go()}};
+ b.onclick=go;
+ $('#eye').onclick=()=>{const t=c.type==='password';c.type=t?'text':'password';$('#eye').innerHTML=ic(t?eye+'M4 4l16 16':eye);$('#eye').setAttribute('aria-pressed',t);$('#eye').setAttribute('aria-label',t?'Sembunyikan kode akses':'Tampilkan kode akses');c.focus()};
  async function go(){
-   const code=c.value.trim();
-   if(!code||b.classList.contains('load'))return;
-   b.classList.add('load');b.disabled=true;b.innerHTML='<i class="sp"></i>';c.blur();
+   const code=c.value.trim(); if(!code||b.classList.contains('load'))return;
+   b.classList.add('load');b.disabled=true;b.innerHTML='<i class="sp"></i> Memverifikasi…';c.blur();er.textContent='';
    try{
-     // Login Owner memakai akun Auth yang sudah dibuat.
-     // RPC identitas hanya dipakai sebagai verifikasi tambahan; bila API schema/cache
-     // masih menolak RPC, login tidak boleh ikut terblokir.
-     const OWNER_LOGIN_EMAIL='denxudua@gmail.com';
-     let ownerEmail=OWNER_LOGIN_EMAIL;
-     try{
-       const {data:identity,error:identityError}=await sbClient.rpc('owner_get_login_identity');
-       if(!identityError && identity?.ok && identity?.email){
-         ownerEmail=String(identity.email).trim().toLowerCase();
-       }
-     }catch(_rpcError){
-       console.warn('RPC identitas Owner dilewati; memakai akun Auth Owner yang sudah dikonfigurasi.');
-     }
-
-     // Hapus sesi lama agar percobaan login selalu dimulai dari sesi yang bersih.
      await sbClient.auth.signOut({scope:'local'});
+     const {data,error}=await sbClient.auth.signInWithPassword({email:OWNER_EMAIL,password:code});
+     if(error) throw error;
+     if(!data?.user||!data?.session) throw new Error('Supabase tidak mengembalikan sesi login.');
+     if(String(data.user.email||'').trim().toLowerCase()!==OWNER_EMAIL) throw new Error('Akun Auth yang masuk bukan akun Owner aktif.');
 
-     const {data,error}=await sbClient.auth.signInWithPassword({
-       email:ownerEmail,
-       password:code
-     });
-     if(error)throw error;
-     if(!data?.user||!data?.session)throw new Error('Supabase belum mengembalikan sesi login.');
+     /* Auth sudah berhasil. Data dashboard dicoba dimuat, tetapi kegagalan data tidak membatalkan sesi Auth. */
+     let dataWarning='';
+     try{ await loadServerState(); }
+     catch(loadErr){ console.error('OWNER_DATA_LOAD_AFTER_AUTH',loadErr); dataWarning=String(loadErr?.message||loadErr); }
 
-     // Pastikan sesi yang dibuat benar-benar untuk email Owner yang dikembalikan server.
-     if(String(data.user.email||'').trim().toLowerCase()!==ownerEmail){
-       await sbClient.auth.signOut({scope:'local'});
-       throw new Error('Akun login tidak sesuai dengan Owner aktif.');
-     }
-     await loadServerState();
-     b.classList.replace('load','ok');b.disabled=false;b.innerHTML=ic('M5 12.5l4.5 4.5L19 7.5');
+     b.classList.replace('load','ok');b.disabled=false;b.innerHTML=ic('M5 12.5l4.5 4.5L19 7.5')+' Berhasil';
      if(navigator.vibrate)navigator.vibrate(30);
-     setTimeout(()=>{shell();startRealtime()},250);
+     setTimeout(()=>{shell();startRealtime();if(dataWarning)toast('Login berhasil. Sebagian data belum termuat.');},220);
    }catch(e){
-     console.error(e);
-     b.classList.remove('load');b.innerHTML='Masuk ke Dashboard';validate();
-     f.classList.add('bad');c.setAttribute('aria-invalid','true');
-     const rawMsg=String(e?.context?.body?.message||e?.message||'');
-     const msg=rawMsg.toLowerCase();
-     er.textContent=msg.includes('invalid login')||msg.includes('invalid credentials')
-       ?'Kode akses tidak sesuai dengan akun Owner aktif.'
-       :'Akses belum dapat dibuka. Periksa kode akses atau koneksi server.';
-     card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
-     if(navigator.vibrate)navigator.vibrate(120);c.focus()
+     console.error('OWNER_LOGIN',e);b.classList.remove('load');b.innerHTML='Masuk ke Dashboard';validate();
+     const raw=String(e?.message||e||'Kesalahan tidak diketahui');
+     const low=raw.toLowerCase();
+     if(low.includes('invalid login')||low.includes('invalid credentials')) fail('Kode akses tidak sesuai dengan akun Owner.');
+     else fail(raw);
+     c.focus();
    }
  }
 }
