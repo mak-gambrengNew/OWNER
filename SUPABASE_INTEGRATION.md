@@ -17,3 +17,7 @@ Deletes are implemented as server-side deactivation where the backend contract e
 
 ## Realtime
 Subscriptions refresh the dashboard when stores, menus, inventory, monitoring transactions, operation sessions, notifications, or audit logs change.
+
+## Owner access code
+
+The public login page intentionally does not ask for email. The `owner_get_login_identity` RPC resolves the active Owner from `businesses.owner_id` and returns the current Auth email needed for sign-in. The browser then calls `signInWithPassword()` with that email and the entered access code. All existing Owner RPCs continue to use `auth.uid()` and RLS.

@@ -5,18 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Teh Solo · Ma-Gambreng · Owner</title>
 <meta name="application-name" content="Ma-Gambreng Owner Command Center">
-<meta name="description" content="Server-backed Owner PWA. Operational data is loaded from Supabase.">
+<meta name="description" content="Aplikasi Owner. Data operasional dimuat dari sistem.">
 
-<!--
-CHECKPOINT OWNER UI — 2026-09-30
-Revisi yang dikunci dari pekerjaan backend sebelumnya:
-1) Tab Laporan menjadi pusat pemilihan 7 laporan resmi.
-2) Alur DOWNLOAD LAPORAN: pilih tanggal → Preview laporan → Download PDF.
-3) Keuangan diarahkan ke pendapatan & aktivitas tercatat; tidak menjadikan saldo kas/manual cash sebagai indikator utama.
-4) Master data Owner diposisikan sebagai sumber keputusan sistem; HTML bukan source of truth.
-5) Laporan dipisahkan per domain dan tidak menyalin isi laporan lain.
-6) Angka pada UI checkpoint ini bukan sumber kebenaran produksi; integrasi backend tetap menjadi pekerjaan implementasi.
--->
+<!-- Kontrak UI Owner: laporan, keuangan, master data, dan data operasional mengikuti sumber sistem. -->
 <meta name="theme-color" content="#0F3D35">
 <meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1207,7 +1198,7 @@ window.addEventListener('error',function(e){var a=document.getElementById('app')
 
 /* ===== Data demo (ganti dengan API Supabase) ===== */
 
-/* ===== SERVER DATA LAYER =====
+/* ===== DATA SISTEM =====
    No operational mock/seed/demo data is stored in this client.
    All business facts come from Supabase after authentication.
 */
@@ -1360,7 +1351,7 @@ async function loadServerState(){
   }catch(_){}
 }
 async function refreshAndDraw(){
-  try{await loadServerState();draw()}catch(e){console.error(e);toast(e.message||'Gagal memuat data server')}
+  try{await loadServerState();draw()}catch(e){console.error(e);toast(e.message||'Data belum dapat dimuat')}
 }
 function startRealtime(){
   if(realtimeChannel) sbClient.removeChannel(realtimeChannel);
@@ -1374,17 +1365,17 @@ function startRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'audit_logs'},refreshAndDraw)
     .subscribe();
 }
-/* ===== OWNER CRUD MASTER DATA — SERVER-BACKED ===== */
+/* ===== KELOLA DATA UTAMA ===== */
 function crudLabel(k){return {gerai:'Gerai',spg:'SPG',checker:'Checker',menu:'Menu',logistik:'Logistik',esKristal:'Kontak WhatsApp Es Kristal'}[k]||k}
 function crudIcon(k){return {gerai:'🏪',spg:'👤',checker:'✅',menu:'🍹',logistik:'📦',esKristal:'🧊'}[k]||'•'}
 function crudCount(k){return (ownerCrud[k]||[]).length}
 function ownerCrudPage(){
  const mods=['gerai','spg','checker','menu','logistik','esKristal'];
- return head('Owner Fitur','Master data & CRUD operasional')+
- `<section class="owner-crud-hero"><div><span class="eyebrow">MASTER DATA</span><h2>Kelola sistem</h2><p>Master data yang menjadi acuan sistem dan harus mengikuti keputusan Owner.</p></div><div class="crud-total"><b>${mods.reduce((n,k)=>n+crudCount(k),0)}</b><span>record</span></div></section>`+
- `<section class="crud-grid">${mods.map(k=>`<button class="crud-module" data-o="crud-${k}"><span class="crud-module-icon">${crudIcon(k)}</span><div><b>${crudLabel(k)}</b><small>${crudCount(k)} data · master Owner</small></div><i>›</i></button>`).join('')}</section>`+
+ return head('Kelola Usaha','Gerai, tim, menu, persediaan & kontak')+
+ `<section class="owner-crud-hero"><div><span class="eyebrow">MASTER DATA</span><h2>Kelola sistem</h2><p>Master data yang menjadi acuan sistem dan harus mengikuti keputusan Owner.</p></div><div class="crud-total"><b>${mods.reduce((n,k)=>n+crudCount(k),0)}</b><span>data</span></div></section>`+
+ `<section class="crud-grid">${mods.map(k=>`<button class="crud-module" data-o="crud-${k}"><span class="crud-module-icon">${crudIcon(k)}</span><div><b>${crudLabel(k)}</b><small>${crudCount(k)} data terdaftar</small></div><i>›</i></button>`).join('')}</section>`+
  `<section class="crud-secondary"><button data-o="finance">💰 Keuangan</button><button data-o="report">📊 Laporan</button><button data-o="audit">🧾 Audit</button></section>`+
- `<section class="crud-rule"><span>CHECKPOINT INTEGRITAS</span><b>Master data Owner adalah sumber keputusan sistem</b><small>Backend/database tetap menjadi source of truth. HTML ini hanya menjadi lapisan interaksi Owner.</small></section>`;
+ `<section class="crud-rule"><span>DATA TERJAGA</span><b>Data utama menjadi acuan operasional</b><small>Data utama dikelola dan disimpan oleh sistem. Halaman ini menjadi tempat Owner mengelolanya.</small></section>`;
 }
 function crudRows(k){
  const data=ownerCrud[k]||[];
@@ -1397,11 +1388,11 @@ function crudRows(k){
    if(k==='logistik'){title=r.nama;meta=`${r.stok??0} ${r.satuan||'unit'} · minimum ${r.minimum??0} · ${r.logistics_type==='active'?'Aktif':'Pasif'}`;right=`<span class="crud-chip ${(Number(r.stok)||0)<(Number(r.minimum)||0)?'warn':'ok'}">${(Number(r.stok)||0)<(Number(r.minimum)||0)?'Stok rendah':'Aman'}</span>`}
    if(k==='esKristal'){title=r.nama;meta=`${r.perusahaan||'Supplier'}${r.catatan?' · '+r.catatan:''}`;right=r.telepon?`<a class="crud-wa" href="${waHref(r.telepon)}" target="_blank" rel="noopener">WhatsApp</a>`:'<span class="crud-chip muted">Nomor belum diisi</span>'}
    return `<div class="crud-row" data-crud-action="detail" data-k="${k}" data-id="${esc(r.id)}"><div class="crud-row-main"><span class="crud-row-icon">${crudIcon(k)}</span><div><b>${esc(title)}</b><small>${esc(meta)}</small></div></div><div class="crud-row-right">${right}<button class="crud-mini edit" data-crud-action="edit" data-k="${k}" data-id="${esc(r.id)}" aria-label="Edit">✎</button><button class="crud-mini danger" data-crud-action="delete" data-k="${k}" data-id="${esc(r.id)}" aria-label="Hapus">×</button></div></div>`
- }).join('')||`<div class="crud-empty"><span>＋</span><b>Belum ada data</b><small>Tekan tombol Tambah untuk membuat record pertama.</small></div>`;
+ }).join('')||`<div class="crud-empty"><span>＋</span><b>Belum ada data</b><small>Tekan tombol Tambah untuk menambahkan data pertama.</small></div>`;
 }
 function crudSheet(k){
  const title=crudLabel(k),data=ownerCrud[k]||[];
- sheet(`<div class="crud-sheet-head"><div><span class="eyebrow">MASTER DATA</span><h3>${crudIcon(k)} ${title}</h3><small>${data.length} record tersimpan</small></div><button class="crud-add" data-crud-action="add" data-k="${k}">＋ Tambah</button></div><div class="crud-toolbar"><input class="fld crud-search" id="crud-search" placeholder="Cari ${title.toLowerCase()}..." autocomplete="off"><span>${data.length} data</span></div><div class="crud-list" id="crud-list">${crudRows(k)}</div>`);
+ sheet(`<div class="crud-sheet-head"><div><span class="eyebrow">MASTER DATA</span><h3>${crudIcon(k)} ${title}</h3><small>${data.length} data tersimpan</small></div><button class="crud-add" data-crud-action="add" data-k="${k}">＋ Tambah</button></div><div class="crud-toolbar"><input class="fld crud-search" id="crud-search" placeholder="Cari ${title.toLowerCase()}..." autocomplete="off"><span>${data.length} data</span></div><div class="crud-list" id="crud-list">${crudRows(k)}</div>`);
  const search=$('#crud-search'); if(search){search.oninput=()=>{const q=search.value.toLowerCase();document.querySelectorAll('#crud-list .crud-row').forEach(row=>row.style.display=!q||row.textContent.toLowerCase().includes(q)?'':'none')}}
  bindCrudActionEvents();
 }
@@ -1452,8 +1443,8 @@ function crudForm(k,id){
  const title=crudLabel(k),r=id?(ownerCrud[k]||[]).find(x=>x.id===id):null;
  let body=`<div class="crud-form-section"><b>${id?'Perubahan data':'Data baru'}</b><small>${id?'Periksa perubahan sebelum disimpan. Perubahan master dapat berdampak ke modul lain.':'Isi data utama terlebih dahulu. Data akan mengikuti aturan validasi master Owner.'}</small></div>`;
  if(k==='gerai') body+=crudField('Nama gerai','nama','text','Contoh: Sunter',r?.nama)+crudField('Alamat','alamat','text','Alamat gerai',r?.alamat)+crudField('Nomor WhatsApp','telepon','tel','08xxxxxxxxxx',r?.telepon)+crudField('SPG penanggung jawab','spg','text','Nama SPG',r?.spg)+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label>`;
- if(k==='spg') body+=crudField('Nama SPG','nama','text','Nama lengkap',r?.nama)+crudField('Nomor WhatsApp','telepon','tel','08xxxxxxxxxx',r?.telepon)+(!id?crudField('Kode akses SPG','access_code','password','Minimal 6 karakter',''):'')+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label><div class="crud-helper">Akun SPG baru dibuat melalui Edge Function server. Penempatan gerai mengikuti alur workspace/link gerai backend.</div>`;
- if(k==='checker') body+=crudField('Nama checker','nama','text','Nama lengkap',r?.nama)+crudField('Nomor WhatsApp','telepon','tel','08xxxxxxxxxx',r?.telepon)+(!id?crudField('Kode akses Checker','access_code','password','Minimal 6 karakter',''):'')+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label><div class="crud-helper">Akun Checker baru dibuat melalui Edge Function server dan cakupannya mengikuti otorisasi bisnis backend.</div>`;
+ if(k==='spg') body+=crudField('Nama SPG','nama','text','Nama lengkap',r?.nama)+crudField('Nomor WhatsApp','telepon','tel','08xxxxxxxxxx',r?.telepon)+(!id?crudField('Kode akses SPG','access_code','password','Minimal 6 karakter',''):'')+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label><div class="crud-helper">Akun SPG baru dibuat melalui sistem. Penempatan gerai mengikuti pengaturan operasional yang berlaku.</div>`;
+ if(k==='checker') body+=crudField('Nama checker','nama','text','Nama lengkap',r?.nama)+crudField('Nomor WhatsApp','telepon','tel','08xxxxxxxxxx',r?.telepon)+(!id?crudField('Kode akses Checker','access_code','password','Minimal 6 karakter',''):'')+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label><div class="crud-helper">Akun Checker baru dibuat melalui sistem dan mengikuti hak akses yang telah ditetapkan.</div>`;
  if(k==='menu'){
    body+=crudField('Nama menu','nama','text','Nama produk',r?.nama)+crudField('Kategori','kategori','text','Minuman / makanan',r?.kategori)+crudField('Harga jual','harga','number','0',r?.harga)+crudField('HPP','hpp','number','Opsional',r?.hpp)+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label>`;
    const comps=r?.komposisi||[];
@@ -1461,7 +1452,7 @@ function crudForm(k,id){
  }
  if(k==='logistik') body+=crudField('Nama item','nama','text','Contoh: Cup',r?.nama)+crudField('Satuan','satuan','text','pcs / box / kg',r?.satuan)+crudField('Stok saat ini','stok','number','0',r?.stok)+crudField('Minimum stok','minimum','number','0',r?.minimum)+crudField('Supplier','supplier','text','Nama supplier',r?.supplier)+`<label class="crud-field"><span>Tipe logistik</span><select class="fld" id="cf-logistics_type"><option value="passive" ${(r?.logistics_type||'passive')==='passive'?'selected':''}>Pasif</option><option value="active" ${r?.logistics_type==='active'?'selected':''}>Aktif — berkurang saat penjualan</option></select></label><label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label>`;
  if(k==='esKristal') body+=crudField('Nama kontak','nama','text','Kontak utama',r?.nama)+crudField('Nama perusahaan','perusahaan','text','Supplier es kristal',r?.perusahaan)+crudField('Nomor WhatsApp','telepon','tel','628xxxxxxxxxx',r?.telepon)+crudField('Catatan','catatan','text','Jadwal / keterangan',r?.catatan)+`<label class="crud-field"><span>Status</span>${crudStatus(r?.status||'Aktif')}</label>`;
- sheet(`<div class="crud-form-head"><span class="eyebrow">${id?'EDIT RECORD':'RECORD BARU'}</span><h3>${id?'Edit':'Tambah'} ${title}</h3></div><div class="crud-form">${body}</div><button class="btn crud-save" data-crud-action="save" data-k="${k}" data-id="${id||''}">${id?'Simpan perubahan':'Tambah data'}</button>`);
+ sheet(`<div class="crud-form-head"><span class="eyebrow">${id?'EDIT DATA':'DATA BARU'}</span><h3>${id?'Edit':'Tambah'} ${title}</h3></div><div class="crud-form">${body}</div><button class="btn crud-save" data-crud-action="save" data-k="${k}" data-id="${id||''}">${id?'Simpan perubahan':'Tambah data'}</button>`);
  bindCrudActionEvents();
  bindCompositionEvents();
 }
@@ -1527,7 +1518,7 @@ async function crudSave(k,id){
    window.__crudDraft=null;
    await loadServerState();
    const saved=(ownerCrud[k]||[]).find(x=>x.id===id)||draft;
-   sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">✓</div><span class="eyebrow">SERVER BERHASIL</span><h3>${id?'Revisi berhasil disimpan':'Data berhasil didaftarkan'}</h3><p><strong>${esc(saved.nama||draft.nama)}</strong> sudah tersimpan pada backend.</p><div class="crud-confirm-actions"><button type="button" class="btn" data-crud-action="detail" data-k="${k}" data-id="${esc(saved.id||id||'')}">Buka detail</button><button type="button" class="btn ghost" data-crud-action="back-list" data-k="${k}">Kembali ke daftar</button></div></div>`);
+   sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">✓</div><span class="eyebrow">BERHASIL</span><h3>${id?'Revisi berhasil disimpan':'Data berhasil didaftarkan'}</h3><p><strong>${esc(saved.nama||draft.nama)}</strong> sudah tersimpan.</p><div class="crud-confirm-actions"><button type="button" class="btn" data-crud-action="detail" data-k="${k}" data-id="${esc(saved.id||id||'')}">Buka detail</button><button type="button" class="btn ghost" data-crud-action="back-list" data-k="${k}">Kembali ke daftar</button></div></div>`);
    bindCrudActionEvents();
  }catch(e){console.error(e);toast(e.message||'Gagal menyimpan ke server')}
 }
@@ -1535,10 +1526,10 @@ async function crudSave(k,id){
 function crudConfirmDelete(k,id,step=1){
  const r=(ownerCrud[k]||[]).find(x=>x.id===id);if(!r)return;
  if(step===1){
-  const dep=k==='menu'?'Menu dapat dipakai oleh transaksi dan komposisi inventory. Histori transaksi tidak boleh ikut terhapus.':k==='logistik'?'Inventory dapat terhubung ke komposisi menu dan pergerakan stok. Jika masih dipakai backend dapat menolak penghapusan.':k==='gerai'?'Gerai dapat memiliki sesi, penjualan, penugasan SPG, dan histori. Histori tidak ikut terhapus.':k==='spg'?'SPG dapat memiliki penugasan dan aktivitas. Histori tidak ikut terhapus.':k==='checker'?'Checker memiliki histori pemeriksaan. Histori tidak ikut terhapus.':'Kontak ini dapat dipakai pada proses operasional es kristal.';
+  const dep=k==='menu'?'Menu dapat dipakai oleh transaksi dan komposisi inventory. Histori transaksi tidak boleh ikut terhapus.':k==='logistik'?'Inventory dapat terhubung ke komposisi menu dan pergerakan stok. Jika masih digunakan, data akan dipertahankan dan dinonaktifkan.':k==='gerai'?'Gerai dapat memiliki sesi, penjualan, penugasan SPG, dan histori. Histori tidak ikut terhapus.':k==='spg'?'SPG dapat memiliki penugasan dan aktivitas. Histori tidak ikut terhapus.':k==='checker'?'Checker memiliki histori pemeriksaan. Histori tidak ikut terhapus.':'Kontak ini dapat dipakai pada proses operasional es kristal.';
   sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">⚠️</div><span class="eyebrow">PENGHAPUSAN</span><h3>Periksa sebelum menghapus</h3><p>Anda memilih <strong>${esc(r.nama)}</strong>.</p><div class="crud-form-section"><b>Ketergantungan data</b><small>${esc(dep)}</small></div><div class="crud-confirm-actions"><button type="button" class="btn ghost" data-crud-action="delete-cancel" data-k="${k}" data-id="${esc(id)}">Batal</button><button type="button" class="btn crud-danger-primary" data-crud-action="delete-next" data-k="${k}" data-id="${esc(id)}">Lanjutkan</button></div></div>`);
  }else{
-  sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">!</div><span class="eyebrow">KONFIRMASI TERAKHIR</span><h3>Hapus ${crudLabel(k)}?</h3><p><strong>${esc(r.nama)}</strong> akan dihapus dari master. Jika backend mendeteksi ketergantungan aktif, penghapusan harus ditolak dan data dipertahankan sebagai Nonaktif/arsip.</p><div class="crud-confirm-actions"><button type="button" class="btn ghost" data-crud-action="delete-cancel" data-k="${k}" data-id="${esc(id)}">Batal</button><button type="button" class="btn crud-danger-primary" data-crud-action="delete-confirm" data-k="${k}" data-id="${esc(id)}">Hapus permanen</button></div></div>`);
+  sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">!</div><span class="eyebrow">KONFIRMASI TERAKHIR</span><h3>Hapus ${crudLabel(k)}?</h3><p><strong>${esc(r.nama)}</strong> akan dihapus dari master. Jika data masih digunakan oleh bagian lain, data akan dipertahankan dan dinonaktifkan agar riwayat tetap aman.</p><div class="crud-confirm-actions"><button type="button" class="btn ghost" data-crud-action="delete-cancel" data-k="${k}" data-id="${esc(id)}">Batal</button><button type="button" class="btn crud-danger-primary" data-crud-action="delete-confirm" data-k="${k}" data-id="${esc(id)}">Hapus permanen</button></div></div>`);
  }
  bindCrudActionEvents();
 }
@@ -1551,9 +1542,9 @@ async function crudDelete(k,id){
    else if(k==='spg'||k==='checker') await rpc('owner_set_member_status',{p_profile_id:id,p_role:k,p_status:'inactive'});
    else if(k==='esKristal') await rpc('owner_upsert_whatsapp_contact',{p_contact_id:id,p_display_name:r.nama,p_label:r.perusahaan||'',p_phone_number:r.telepon||'',p_notes:r.catatan||'',p_status:'inactive',p_is_primary:false});
    await loadServerState();
-   sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">✓</div><span class="eyebrow">SERVER BERHASIL</span><h3>Data dinonaktifkan</h3><p><strong>${esc(r.nama)}</strong> sekarang berstatus Nonaktif. Histori operasional tetap dipertahankan.</p><button type="button" class="btn" data-crud-action="back-list" data-k="${k}">Kembali ke daftar</button></div>`);
+   sheet(`<div class="crud-confirm"><div class="crud-confirm-icon">✓</div><span class="eyebrow">BERHASIL</span><h3>Data dinonaktifkan</h3><p><strong>${esc(r.nama)}</strong> sekarang berstatus Nonaktif. Histori operasional tetap dipertahankan.</p><button type="button" class="btn" data-crud-action="back-list" data-k="${k}">Kembali ke daftar</button></div>`);
    bindCrudActionEvents();
- }catch(e){console.error(e);toast(e.message||'Server menolak perubahan')}
+ }catch(e){console.error(e);toast(e.message||'Perubahan tidak dapat disimpan')}
 }
 
 let tab='home';
@@ -1578,47 +1569,52 @@ function login(){
  const h=new Date().getHours(),g=h<11?'pagi':h<15?'siang':h<18?'sore':'malam';
  const ic=d=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
  const EYE=P[N('👁️')];
- app.innerHTML=`<main class="lg" aria-label="Login Owner">
+ app.innerHTML=`<main class="lg" aria-label="Akses Owner">
    <section class="lg-hero">
      <div class="lg-brand">
        <div class="logo" aria-hidden="true"><img src="${BRAND_LOGO}" alt=""></div>
-       <span class="lg-kicker"><i></i> Akses Owner</span>
+       <span class="lg-kicker"><i></i> Kode Akses Owner</span>
        <h1>Selamat ${g}</h1>
-       <p>Pusat kendali operasional <strong>Mak-Gambreng</strong> untuk gerai, stok, dan keuangan.</p>
+       <p>Masukkan kode akses untuk membuka pusat kendali <strong>Mak-Gambreng</strong>.</p>
      </div>
    </section>
    <section class="lg-card" aria-label="Masuk sebagai Owner">
      <div class="lg-heading">
-       <strong>Masuk ke dashboard</strong>
-       <span>Gunakan akun Owner yang terdaftar di server.</span>
+       <strong>Masuk sebagai Owner</strong>
+       <span>Gunakan kode akses yang diberikan untuk akun Owner Anda.</span>
      </div>
-     <label class="crud-field" style="margin-bottom:10px"><span>Email Owner</span><input id="owner-email" class="fld" type="email" value="owner@panel.com" autocomplete="username" inputmode="email"></label>
      <div class="lg-f" id="f">
        <span class="lead">${ic(P[N('🔒')])}</span>
-       <input id="c" type="password" placeholder=" " autocomplete="current-password" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Password Owner" aria-describedby="er">
-       <label for="c">Password Owner</label>
-       <button type="button" class="eye" id="eye" aria-label="Tampilkan password" aria-pressed="false">${ic(EYE)}</button>
+       <input id="c" type="password" placeholder=" " autocomplete="current-password" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Kode akses Owner" aria-describedby="er">
+       <label for="c">Kode akses</label>
+       <button type="button" class="eye" id="eye" aria-label="Tampilkan kode akses" aria-pressed="false">${ic(EYE)}</button>
      </div>
      <div class="lg-err" id="er" role="alert" aria-live="polite"></div>
      <button class="btn lg-btn" id="go" disabled>Masuk ke Dashboard</button>
-     <div class="lg-security">${ic(P[N('🔒')])} Supabase Auth · Sesi dikelola server</div>
-     <p class="lg-note">Mak-Gambreng Owner · server-backed</p>
+     <div class="lg-security">${ic(P[N('🔒')])} Akses aman · akun diverifikasi oleh sistem</div>
+     <p class="lg-note">Akun Owner dikelola dari server.</p>
    </section>
  </main><div class="toast"></div>`;
- const email=$('#owner-email'),c=$('#c'),b=$('#go'),f=$('#f'),er=$('#er'),card=$('.lg-card');
- const validate=()=>{b.disabled=!(email.value.trim()&&c.value)};
- email.oninput=()=>{er.textContent='';f.classList.remove('bad');validate()};
+ const c=$('#c'),b=$('#go'),f=$('#f'),er=$('#er'),card=$('.lg-card');
+ const validate=()=>{b.disabled=!c.value.trim()};
  c.oninput=()=>{er.textContent='';f.classList.remove('bad');c.removeAttribute('aria-invalid');validate()};
  c.onfocus=()=>{card.classList.add('focus');setTimeout(()=>card.classList.remove('focus'),180)};
  c.onkeydown=e=>e.key==='Enter'&&go();b.onclick=go;
  $('#eye').onclick=()=>{const t=c.type==='password';c.type=t?'text':'password';$('#eye').innerHTML=ic(t?EYE+'M4 4l16 16':EYE);$('#eye').setAttribute('aria-pressed',t)};
  async function go(){
-   if(!email.value.trim()||!c.value||b.classList.contains('load'))return;
+   const code=c.value.trim();
+   if(!code||b.classList.contains('load'))return;
    b.classList.add('load');b.disabled=true;b.innerHTML='<i class="sp"></i>';c.blur();
    try{
-     const {data,error}=await sbClient.auth.signInWithPassword({email:email.value.trim(),password:c.value});
+     const {data:identity,error:identityError}=await sbClient.rpc('owner_get_login_identity');
+     if(identityError)throw identityError;
+     if(!identity?.ok||!identity?.email)throw new Error('Akun Owner belum terdaftar.');
+     const {data,error}=await sbClient.auth.signInWithPassword({
+       email:identity.email,
+       password:code
+     });
      if(error)throw error;
-     if(!data.session)throw new Error('Sesi autentikasi tidak dibuat oleh server.');
+     if(!data?.session)throw new Error('Sesi belum berhasil dibuat.');
      await loadServerState();
      b.classList.replace('load','ok');b.disabled=false;b.innerHTML=ic('M5 12.5l4.5 4.5L19 7.5');
      if(navigator.vibrate)navigator.vibrate(30);
@@ -1627,14 +1623,17 @@ function login(){
      console.error(e);
      b.classList.remove('load');b.innerHTML='Masuk ke Dashboard';validate();
      f.classList.add('bad');c.setAttribute('aria-invalid','true');
-     er.textContent=e.message||'Login gagal. Periksa akun Owner.';
+     const msg=String(e?.context?.body?.message||e?.message||'').toLowerCase();
+     er.textContent=msg.includes('invalid login')||msg.includes('invalid credentials')
+       ?'Kode akses tidak sesuai. Periksa kembali lalu coba lagi.'
+       :'Akses belum dapat dibuka. Periksa koneksi atau coba lagi.';
      card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
      if(navigator.vibrate)navigator.vibrate(120);c.focus()
    }
  }
 }
 /* ===== Shell ===== */
-const tabs=[['home','🏠','Dashboard'],['lap','📊','Laporan'],['gud','📦','Logistik'],['owner','✨','Owner Fitur'],['adm','⚙️','Pengaturan']];
+const tabs=[['home','🏠','Dashboard'],['lap','📊','Laporan'],['gud','📦','Logistik'],['owner','✨','Kelola Usaha'],['adm','⚙️','Pengaturan']];
 function shell(){
  app.innerHTML=`<div class="scr" id="v"></div><nav class="tabs">${tabs.map(t=>`<button data-t="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('')}</nav><div class="dim"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="Detail"></div><div class="toast"></div>`;
  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
@@ -1682,14 +1681,14 @@ function home(){
 <button data-o="log-aktifitas"><span class="lux-action-icon">🧾</span><b>Log Aktifitas</b><small>Audit sistem</small></button>
 <button data-o="set-menu"><span class="lux-action-icon">🍹</span><b>Set Menu</b><small>Kelola menu</small></button>
 </div></section>
-<section class="sec"><h2>Status Gerai</h2><div class="card">${gerai.length?gerai.map(g=>li('🏪',esc(g.nama),g.session?`Session aktif · ${esc(g.session.opened_at||'')}`:'Tidak ada session aktif',`<span class="chip ${g.session?'ok':''}">${g.session?'BUKA':'TUTUP'}</span>`)).join(''):'<div class="empty">Belum ada gerai dari server.</div>'}</div></section>`;
+<section class="sec"><h2>Status Gerai</h2><div class="card">${gerai.length?gerai.map(g=>li('🏪',esc(g.nama),g.session?`Session aktif · ${esc(g.session.opened_at||'')}`:'Tidak ada session aktif',`<span class="chip ${g.session?'ok':''}">${g.session?'BUKA':'TUTUP'}</span>`)).join(''):'<div class="empty">Belum ada gerai yang terdaftar.</div>'}</div></section>`;
 }
 function keu(){
  return head('Keuangan','Pendapatan dan aktivitas keuangan tercatat')+`<div class="kpi-hero"><small>Pendapatan hari ini</small><div class="kpi-main">${rp(total)}</div><div class="kpi-grid"><div class="k"><small>Transaksi</small><b>${totalTransactions}</b></div><div class="k"><small>Periode</small><b>Hari ini</b></div><div class="k"><small>Status</small><b>${totalTransactions?'Tercatat':'Tidak ada data'}</b></div></div></div>
  <div class="sec"><h2>Aktivitas keuangan tercatat</h2><div class="card">${state.moneyTimeline.length?state.moneyTimeline.slice(0,20).map(x=>li('💰',esc(x.title||x.description||x.type||'Aktivitas'),esc(x.created_at||x.occurred_at||''),`<span class="amt">${rp(x.amount||x.total_amount||0)}</span>`)).join(''):'<div class="empty">Belum ada aktivitas yang memiliki catatan sumber.</div>'}</div><div class="hint">Tidak ada saldo kas manual atau angka perkiraan yang ditampilkan sebagai sumber kebenaran.</div></div>`;
 }
 function gud(){
- return head('Gudang','Stok logistik pusat')+`<div class="sec" style="margin-top:16px"><div class="card">${stok.length?stok.map(s=>{const p=s.minimum>0?Math.min(100,(s.stok/s.minimum)*100):100;return `<div class="li"><div class="b"><div class="row"><b>${esc(s.nama)}</b><span>${esc(s.stok)} / min ${esc(s.minimum)} ${esc(s.satuan)}</span></div><div class="bar ${s.stok<s.minimum?'low':''}"><i style="width:${p}%"></i></div></div></div>`}).join(''):'<div class="empty">Belum ada inventory dari server.</div>'}</div><div class="section-note">Stok ditampilkan dari <b>inventory_items</b> server. Tidak ada stok seed di frontend.</div></div>`;
+ return head('Gudang','Stok logistik pusat')+`<div class="sec" style="margin-top:16px"><div class="card">${stok.length?stok.map(s=>{const p=s.minimum>0?Math.min(100,(s.stok/s.minimum)*100):100;return `<div class="li"><div class="b"><div class="row"><b>${esc(s.nama)}</b><span>${esc(s.stok)} / min ${esc(s.minimum)} ${esc(s.satuan)}</span></div><div class="bar ${s.stok<s.minimum?'low':''}"><i style="width:${p}%"></i></div></div></div>`}).join(''):'<div class="empty">Belum ada persediaan yang terdaftar.</div>'}</div><div class="section-note">Stok yang ditampilkan berasal dari catatan stok yang tersimpan di sistem.</div></div>`;
 }
 function lap(){
  return head('Laporan','Pilih laporan yang ingin dilihat')+
@@ -1722,7 +1721,7 @@ async function showReport(key,start=todayJakarta(),end=todayJakarta()){
  const d=REPORT_DEFS[key]||REPORT_DEFS.penjualan;
  tab='lap';
  const v=$('#v');
- if(v){v.innerHTML=head(d[0],d[1])+`<section class="report-detail-page"><button class="report-back" data-o="back-reports">‹ Kembali ke daftar laporan</button><div class="report-detail-head"><span class="eyebrow">LAPORAN OWNER</span><h2>${d[0]}</h2><p>${d[2]}</p></div><div class="report-filter-card"><div><b>Periode laporan</b><small>${esc(start)} s/d ${esc(end)}</small></div><button class="btn ghost" data-o="report-period">Ubah tanggal</button></div><div class="report-status-card"><span>Status data</span><b>SERVER REPORT</b><small>Data diambil melalui owner_get_report; tidak menggunakan angka demo.</small></div><div class="report-empty"><span>⏳</span><b>Memuat laporan...</b><small>Menunggu reporting backend.</small></div></section>`;bind();svgify(v)}
+ if(v){v.innerHTML=head(d[0],d[1])+`<section class="report-detail-page"><button class="report-back" data-o="back-reports">‹ Kembali ke daftar laporan</button><div class="report-detail-head"><span class="eyebrow">LAPORAN OWNER</span><h2>${d[0]}</h2><p>${d[2]}</p></div><div class="report-filter-card"><div><b>Periode laporan</b><small>${esc(start)} s/d ${esc(end)}</small></div><button class="btn ghost" data-o="report-period">Ubah tanggal</button></div><div class="report-status-card"><span>Status data</span><b>SERVER REPORT</b><small>Data diambil melalui owner_get_report; tidak menggunakan angka demo.</small></div><div class="report-empty"><span>⏳</span><b>Memuat laporan...</b><small>Menyiapkan laporan...</small></div></section>`;bind();svgify(v)}
  try{
    const data=await rpc('owner_get_report',{p_report_type:key,p_start_date:start,p_end_date:end,p_store_id:null});
    const pretty=esc(JSON.stringify(data,null,2));
@@ -1733,14 +1732,14 @@ async function showReport(key,start=todayJakarta(),end=todayJakarta()){
 }
 function backReports(){draw()}
 function downloadReportFlow(){
- sheet(`<div class="download-flow"><div class="crud-form-head"><span class="eyebrow">DOWNLOAD LAPORAN</span><h3>Pilih tanggal</h3></div><label class="crud-field"><span>Tanggal mulai</span><input class="fld" id="dl-start" type="date" value="${todayJakarta()}"></label><label class="crud-field"><span>Tanggal akhir</span><input class="fld" id="dl-end" type="date" value="${todayJakarta()}"></label><button class="btn" data-x="preview-report">Preview laporan</button><div class="hint">PDF hanya dapat diunduh jika reporting backend menyediakan file/path PDF. Tidak dibuat dari angka frontend.</div></div>`);
+ sheet(`<div class="download-flow"><div class="crud-form-head"><span class="eyebrow">DOWNLOAD LAPORAN</span><h3>Pilih tanggal</h3></div><label class="crud-field"><span>Tanggal mulai</span><input class="fld" id="dl-start" type="date" value="${todayJakarta()}"></label><label class="crud-field"><span>Tanggal akhir</span><input class="fld" id="dl-end" type="date" value="${todayJakarta()}"></label><button class="btn" data-x="preview-report">Preview laporan</button><div class="hint">PDF hanya dapat diunduh jika laporan tersedia. Angka laporan selalu berasal dari data yang tercatat.</div></div>`);
 }
 function owner(){ return ownerCrudPage(); }
 
 function adm(){
- return head('Administrasi','Keamanan, data & akses')+`<div class="sec" style="margin-top:16px"><h2>Keamanan</h2><div class="card"><button class="set" data-o="kode">Ubah kode akses Owner <span>›</span></button><button class="set" data-o="audit">Audit Log <span>›</span></button><button class="set" data-o="edit">Pusat Edit Data <span>🔒</span></button></div></div>
+ return head('Pengaturan','Keamanan, akun & data')+`<div class="sec" style="margin-top:16px"><h2>Keamanan</h2><div class="card"><button class="set" data-o="kode">Ubah kode akses Owner <span>›</span></button><button class="set" data-o="audit">Audit Log <span>›</span></button><button class="set" data-o="edit">Pusat Edit Data <span>🔒</span></button></div></div>
  <div class="sec"><h2>Data usaha</h2><div class="card"><button class="set" data-o="menu">Kelola Menu <span>›</span></button><button class="set" data-o="hpp">Periode perhitungan HPP <span>›</span></button></div></div>
- <div class="sec"><button class="btn" style="background:var(--bad)" data-o="out">Keluar</button><div class="hint">Mak-Gambreng Admin v1.0</div></div>`;
+ <div class="sec"><button class="btn" style="background:var(--bad)" data-o="out">Keluar</button><div class="hint">Mak-Gambreng Owner</div></div>`;
 }
 
 /* ===== Aksi ===== */
@@ -1754,16 +1753,16 @@ async function act(o){
   }
   if(o==='team'){
     const members=[...state.spg.map(x=>({...x,role:'SPG'})),...state.checker.map(x=>({...x,role:'Checker'}))];
-    sheet('<h3>Tim Operasional</h3><div class="card">'+(members.length?members.map(x=>li(x.role==='SPG'?'🧑':'🧑‍💼',esc(x.full_name||'Tanpa nama'),`${x.role} · ${x.phone||'Nomor belum diisi'}`,`<span class="chip ${String(x.profile_status).toLowerCase()==='active'?'ok':'warn'}">${esc(statusLabel(x.profile_status))}</span>`)).join(''):'<div class="empty">Belum ada anggota dari server.</div>')+'</div>');
+    sheet('<h3>Tim Operasional</h3><div class="card">'+(members.length?members.map(x=>li(x.role==='SPG'?'🧑':'🧑‍💼',esc(x.full_name||'Tanpa nama'),`${x.role} · ${x.phone||'Nomor belum diisi'}`,`<span class="chip ${String(x.profile_status).toLowerCase()==='active'?'ok':'warn'}">${esc(statusLabel(x.profile_status))}</span>`)).join(''):'<div class="empty">Belum ada anggota yang terdaftar.</div>')+'</div>');
     return;
   }
   if(o==='gerai'){
-    sheet('<h3>Gerai</h3><div class="card">'+(gerai.length?gerai.map(g=>li('🏪',esc(g.nama),`${g.alamat||'Alamat belum diisi'}${g.session?' · session aktif':''}`,`<span class="chip ${g.session?'ok':''}">${esc(statusLabel(g.session?'buka':g.status))}</span>`)).join(''):'<div class="empty">Belum ada gerai dari server.</div>')+'</div>');
+    sheet('<h3>Gerai</h3><div class="card">'+(gerai.length?gerai.map(g=>li('🏪',esc(g.nama),`${g.alamat||'Alamat belum diisi'}${g.session?' · session aktif':''}`,`<span class="chip ${g.session?'ok':''}">${esc(statusLabel(g.session?'buka':g.status))}</span>`)).join(''):'<div class="empty">Belum ada gerai yang terdaftar.</div>')+'</div>');
     return;
   }
   if(o==='nota'||o==='hist'){
     const rows=state.transactions||[];
-    sheet(`<h3>History Penjualan</h3><div class="card">${rows.length?rows.map(x=>li('🧾',esc(x.transaction_id||'Transaksi'),`${esc(x.occurred_at||'')} · ${esc(x.payment_method||'')}`,`<span class="amt">${rp(x.total_amount)}</span>`)).join(''):'<div class="empty">Belum ada transaksi dari server.</div>'}</div>`);
+    sheet(`<h3>History Penjualan</h3><div class="card">${rows.length?rows.map(x=>li('🧾',esc(x.transaction_id||'Transaksi'),`${esc(x.occurred_at||'')} · ${esc(x.payment_method||'')}`,`<span class="amt">${rp(x.total_amount)}</span>`)).join(''):'<div class="empty">Belum ada transaksi yang tercatat.</div>'}</div>`);
     return;
   }
   if(o==='tagihan'){
@@ -1783,12 +1782,12 @@ async function act(o){
     return;
   }
   if(o==='set-menu'||o==='menu'){
-    sheet(`<h3>Menu</h3><div class="card">${menu.length?menu.map(m=>li('🍹',esc(m.nama),`${esc(m.kategori||'Umum')} · ${statusLabel(m.status)}`,`<span class="amt">${rp(m.harga)}</span>`)).join(''):'<div class="empty">Belum ada menu dari server.</div>'}</div>`);
+    sheet(`<h3>Menu</h3><div class="card">${menu.length?menu.map(m=>li('🍹',esc(m.nama),`${esc(m.kategori||'Umum')} · ${statusLabel(m.status)}`,`<span class="amt">${rp(m.harga)}</span>`)).join(''):'<div class="empty">Belum ada menu yang terdaftar.</div>'}</div>`);
     return;
   }
   if(o==='spg'||o==='checker'){
     const rows=o==='spg'?state.spg:state.checker;
-    sheet(`<h3>${o==='spg'?'SPG':'Checker'}</h3><div class="card">${rows.length?rows.map(x=>li(o==='spg'?'🧑':'🧑‍💼',esc(x.full_name||'Tanpa nama'),`${esc(x.phone||'Nomor belum diisi')}`,`<span class="chip ${String(x.profile_status).toLowerCase()==='active'?'ok':'warn'}">${esc(statusLabel(x.profile_status))}</span>`)).join(''):'<div class="empty">Belum ada data dari server.</div>'}</div>`);
+    sheet(`<h3>${o==='spg'?'SPG':'Checker'}</h3><div class="card">${rows.length?rows.map(x=>li(o==='spg'?'🧑':'🧑‍💼',esc(x.full_name||'Tanpa nama'),`${esc(x.phone||'Nomor belum diisi')}`,`<span class="chip ${String(x.profile_status).toLowerCase()==='active'?'ok':'warn'}">${esc(statusLabel(x.profile_status))}</span>`)).join(''):'<div class="empty">Belum ada data yang tersedia.</div>'}</div>`);
     return;
   }
   if(o==='es'){
@@ -1798,15 +1797,15 @@ async function act(o){
   if(o==='report'){tab='lap';draw();return}
   if(o==='pdf'){downloadReportFlow();return}
   if(o==='kode'){
-    sheet('<h3>Ubah kode akses</h3><div class="hint">Kode akses legacy tidak diubah dari frontend. Autentikasi Owner produksi menggunakan Supabase Auth agar RLS dan seluruh RPC Owner dapat bekerja dengan auth.uid().</div>');
+    sheet('<h3>Ubah kode akses</h3><div class="hint">Kode akses mengikuti kata sandi akun Owner yang tersimpan di sistem. Perubahan kode dilakukan melalui pengelolaan akun.</div>');
     return;
   }
   if(o==='hpp'){
-    sheet('<h3>Periode HPP</h3><div class="hint">Konfigurasi periode HPP belum memiliki RPC backend pada project ini. Tidak ada nilai lokal yang akan disimpan.</div>');
+    sheet('<h3>Periode HPP</h3><div class="hint">Pengaturan periode HPP belum tersedia. Tidak ada perubahan yang disimpan sampai pengaturan ini siap.</div>');
     return;
   }
   if(o==='edit'){
-    sheet('<h3>Pusat Edit Data</h3><div class="hint">Gunakan modul Owner Fitur untuk perubahan master. Tidak ada mode dev lokal yang menulis data.</div>');
+    sheet('<h3>Pusat Edit Data</h3><div class="hint">Gunakan menu Kelola Usaha untuk mengubah data utama. Perubahan langsung disimpan ke sistem.</div>');
     return;
   }
   if(o.startsWith('crud-')){crudSheet(o.replace('crud-',''));return}

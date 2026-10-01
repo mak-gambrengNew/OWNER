@@ -16,7 +16,7 @@ The repo is configured for the existing project:
 
 `bhdnkvjktznkdwoqrvlb`
 
-The Owner account already present in the project is `owner@panel.com`; use its actual Supabase Auth password.
+Owner login is resolved from the active Owner attached to the `MA-GAMBRENG` business record on the server. The browser asks only for the Owner access code; that code is the Supabase Auth password. The Owner email is never hardcoded in the browser.
 
 ## Main server integration
 
@@ -59,3 +59,12 @@ Then open:
 The repo deliberately does not invent missing backend capabilities. Features whose backend contract is absent are presented as unavailable rather than silently writing fake/local data.
 
 The PDF flow only reports backend-provided report data; it does not fabricate a PDF from client-side numbers.
+
+## Owner login flow
+
+- Halaman masuk hanya meminta **Kode akses**.
+- Browser memanggil `owner_get_login_identity` untuk mendapatkan akun Owner aktif dari server.
+- Email Owner tidak ditulis atau dikunci di frontend.
+- Kode akses dikirim langsung ke Supabase Auth sebagai password akun Owner.
+- Setelah sesi berhasil dibuat, halaman memuat data Owner melalui RPC dan RLS yang sudah ada.
+- Jika akun Owner diganti kemudian pada data server, halaman mengikuti akun aktif terbaru tanpa perubahan kode frontend.
