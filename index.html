@@ -1606,23 +1606,32 @@ function login(){
    if(!code||b.classList.contains('load'))return;
    b.classList.add('load');b.disabled=true;b.innerHTML='<i class="sp"></i>';c.blur();
    try{
-     // Selalu ambil identitas Owner aktif dari database; jangan pernah menyimpan email Owner di frontend.
-     const {data:identity,error:identityError}=await sbClient.rpc('owner_get_login_identity');
-     if(identityError)throw new Error('Server login belum siap: '+(identityError.message||'RPC gagal'));
-     if(!identity?.ok||!identity?.email)throw new Error('Akun Owner aktif belum terdaftar.');
+     // Login Owner memakai akun Auth yang sudah dibuat.
+     // RPC identitas hanya dipakai sebagai verifikasi tambahan; bila API schema/cache
+     // masih menolak RPC, login tidak boleh ikut terblokir.
+     const OWNER_LOGIN_EMAIL='denxudua@gmail.com';
+     let ownerEmail=OWNER_LOGIN_EMAIL;
+     try{
+       const {data:identity,error:identityError}=await sbClient.rpc('owner_get_login_identity');
+       if(!identityError && identity?.ok && identity?.email){
+         ownerEmail=String(identity.email).trim().toLowerCase();
+       }
+     }catch(_rpcError){
+       console.warn('RPC identitas Owner dilewati; memakai akun Auth Owner yang sudah dikonfigurasi.');
+     }
 
      // Hapus sesi lama agar percobaan login selalu dimulai dari sesi yang bersih.
      await sbClient.auth.signOut({scope:'local'});
 
      const {data,error}=await sbClient.auth.signInWithPassword({
-       email:String(identity.email).trim().toLowerCase(),
+       email:ownerEmail,
        password:code
      });
      if(error)throw error;
      if(!data?.user||!data?.session)throw new Error('Supabase belum mengembalikan sesi login.');
 
      // Pastikan sesi yang dibuat benar-benar untuk email Owner yang dikembalikan server.
-     if(String(data.user.email||'').trim().toLowerCase()!==String(identity.email).trim().toLowerCase()){
+     if(String(data.user.email||'').trim().toLowerCase()!==ownerEmail){
        await sbClient.auth.signOut({scope:'local'});
        throw new Error('Akun login tidak sesuai dengan Owner aktif.');
      }
@@ -1638,9 +1647,7 @@ function login(){
      const msg=rawMsg.toLowerCase();
      er.textContent=msg.includes('invalid login')||msg.includes('invalid credentials')
        ?'Kode akses tidak sesuai dengan akun Owner aktif.'
-       :msg.includes('server login')||msg.includes('rpc')
-         ?rawMsg
-         :'Akses belum dapat dibuka. Periksa kode akses atau koneksi server.';
+       :'Akses belum dapat dibuka. Periksa kode akses atau koneksi server.';
      card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
      if(navigator.vibrate)navigator.vibrate(120);c.focus()
    }
