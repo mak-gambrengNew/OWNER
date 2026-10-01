@@ -1210,7 +1210,9 @@ h1,h2,h3,.owner-identity strong,.lux-section-head h2{font-family:var(--font-disp
 */
 const SUPABASE_URL = window.__SUPABASE_CONFIG?.url || '';
 const SUPABASE_PUBLISHABLE_KEY = window.__SUPABASE_CONFIG?.publishableKey || '';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabase = (window.supabase && SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 
 const rp=n=>'Rp'+Math.round(Number(n)||0).toLocaleString('id-ID');
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -1861,6 +1863,13 @@ document.addEventListener('keydown',e=>e.key==='Escape'&&closeSheet())})();
 /* ===== Start ===== */
 async function bootOwnerApp(){
  try{
+   if(!supabase){
+     document.body.classList.remove('splash-active');
+     const splash=document.getElementById('elite-splash');
+     if(splash) splash.remove();
+     app.innerHTML=`<main class="lg" aria-label="Koneksi Owner"><section class="lg-hero"><div class="lg-brand"><div class="logo" aria-hidden="true"><img src="${BRAND_LOGO}" alt=""></div><h1>Panel Owner belum dapat dimuat</h1><p>Library Supabase atau konfigurasi koneksi tidak berhasil dimuat. Periksa koneksi internet dan file <strong>config.js</strong>, lalu muat ulang halaman.</p></div></section><section class="lg-card"><div class="lg-heading"><strong>Koneksi server belum siap</strong><span>Halaman tidak akan berhenti di splash screen.</span></div><button class="btn lg-btn" onclick="location.reload()">Muat ulang</button></section></main>`;
+     return;
+   }
    const {data:{session}}=await supabase.auth.getSession();
    if(session){
      await loadServerState();
