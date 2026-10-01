@@ -1606,15 +1606,26 @@ function login(){
    if(!code||b.classList.contains('load'))return;
    b.classList.add('load');b.disabled=true;b.innerHTML='<i class="sp"></i>';c.blur();
    try{
+     // Selalu ambil identitas Owner aktif dari database; jangan pernah menyimpan email Owner di frontend.
      const {data:identity,error:identityError}=await sbClient.rpc('owner_get_login_identity');
-     if(identityError)throw identityError;
-     if(!identity?.ok||!identity?.email)throw new Error('Akun Owner belum terdaftar.');
+     if(identityError)throw new Error('Server login belum siap: '+(identityError.message||'RPC gagal'));
+     if(!identity?.ok||!identity?.email)throw new Error('Akun Owner aktif belum terdaftar.');
+
+     // Hapus sesi lama agar percobaan login selalu dimulai dari sesi yang bersih.
+     await sbClient.auth.signOut({scope:'local'});
+
      const {data,error}=await sbClient.auth.signInWithPassword({
-       email:identity.email,
+       email:String(identity.email).trim().toLowerCase(),
        password:code
      });
      if(error)throw error;
-     if(!data?.session)throw new Error('Sesi belum berhasil dibuat.');
+     if(!data?.user||!data?.session)throw new Error('Supabase belum mengembalikan sesi login.');
+
+     // Pastikan sesi yang dibuat benar-benar untuk email Owner yang dikembalikan server.
+     if(String(data.user.email||'').trim().toLowerCase()!==String(identity.email).trim().toLowerCase()){
+       await sbClient.auth.signOut({scope:'local'});
+       throw new Error('Akun login tidak sesuai dengan Owner aktif.');
+     }
      await loadServerState();
      b.classList.replace('load','ok');b.disabled=false;b.innerHTML=ic('M5 12.5l4.5 4.5L19 7.5');
      if(navigator.vibrate)navigator.vibrate(30);
@@ -1623,10 +1634,13 @@ function login(){
      console.error(e);
      b.classList.remove('load');b.innerHTML='Masuk ke Dashboard';validate();
      f.classList.add('bad');c.setAttribute('aria-invalid','true');
-     const msg=String(e?.context?.body?.message||e?.message||'').toLowerCase();
+     const rawMsg=String(e?.context?.body?.message||e?.message||'');
+     const msg=rawMsg.toLowerCase();
      er.textContent=msg.includes('invalid login')||msg.includes('invalid credentials')
-       ?'Kode akses tidak sesuai. Periksa kembali lalu coba lagi.'
-       :'Akses belum dapat dibuka. Periksa koneksi atau coba lagi.';
+       ?'Kode akses tidak sesuai dengan akun Owner aktif.'
+       :msg.includes('server login')||msg.includes('rpc')
+         ?rawMsg
+         :'Akses belum dapat dibuka. Periksa kode akses atau koneksi server.';
      card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
      if(navigator.vibrate)navigator.vibrate(120);c.focus()
    }
@@ -1885,12 +1899,14 @@ async function bootOwnerApp(){
    login();
  }
 }
+/* Splash mengikuti seluruh rangkaian animasi desain (intro → wash → brand → coin → title → credit → exit).
+   Jangan dipotong setelah 1 detik; boot aplikasi tetap terjadi setelah splash selesai agar tayangan utuh. */
 setTimeout(()=>{
   document.body.classList.remove('splash-active');
   const splash=document.getElementById('elite-splash');
-  if(splash){splash.setAttribute('aria-hidden','true');setTimeout(()=>splash.remove(),360)}
+  if(splash){splash.setAttribute('aria-hidden','true');setTimeout(()=>splash.remove(),380)}
   bootOwnerApp();
-},1000);
+},8300);
 
 </script>
 <script>
