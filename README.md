@@ -68,3 +68,32 @@ The PDF flow only reports backend-provided report data; it does not fabricate a 
 - Kode akses dikirim langsung ke Supabase Auth sebagai password akun Owner.
 - Setelah sesi berhasil dibuat, halaman memuat data Owner melalui RPC dan RLS yang sudah ada.
 - Jika akun Owner diganti kemudian pada data server, halaman mengikuti akun aktif terbaru tanpa perubahan kode frontend.
+
+
+## Struktur halaman modular
+
+Setiap halaman utama memiliki HTML dan JavaScript halaman sendiri. Logic yang benar-benar lintas halaman tetap berada di `assets/core.js`, sehingga revisi tampilan/fitur satu halaman dapat dilakukan tanpa membongkar halaman lain.
+
+```text
+index.html                         → Login Owner
+dashboard.html                     → Dashboard
+laporan.html                       → Laporan
+gudang.html                        → Logistik
+kelola-usaha.html                  → Kelola Usaha
+pengaturan.html                    → Pengaturan
+
+assets/
+├── core.js                         → Supabase, Auth, session, state, realtime, CRUD, shell & aksi bersama
+├── dashboard.js                    → Renderer/fitur Dashboard
+├── laporan.js                      → Renderer/fitur Laporan + detail laporan
+├── logistik.js                     → Renderer/fitur Logistik
+├── kelola-usaha.js                 → Entry halaman Kelola Usaha
+├── pengaturan.js                   → Renderer/fitur Pengaturan
+└── style.css                       → Style UI bersama
+```
+
+Navigasi tab utama menggunakan file HTML yang berbeda. Halaman tetap berbagi session Supabase, state server, komponen modal/sheet, autentikasi, realtime, dan style melalui `core.js` sehingga tidak perlu menduplikasi koneksi backend di setiap halaman.
+
+**Aturan pemeliharaan:** jika revisi hanya menyangkut Dashboard, utamakan `dashboard.html` / `assets/dashboard.js`; jika menyangkut Laporan, utamakan `laporan.html` / `assets/laporan.js`; dan seterusnya. Jangan memindahkan logic backend bersama ke file halaman kecuali memang diperlukan.
+
+Tidak ada data operasional baru yang ditambahkan sebagai seed/dummy pada pemecahan ini.

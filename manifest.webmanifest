@@ -1,10 +1,12 @@
 {
   "name": "Teh Solo Ma-Gambreng · Owner",
   "short_name": "Ma-Gambreng Owner",
-  "start_url": "./",
+  "start_url": "./dashboard.html",
   "display": "standalone",
   "background_color": "#f7f5ef",
   "theme_color": "#0F3D35",
   "lang": "id",
-  "icons": []
+  "icons": [],
+  "scope": "./",
+  "id": "./"
 }
